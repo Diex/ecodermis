@@ -7,63 +7,85 @@ var album_id = 'jwprYxa';
 var api_key = '9c48ba5baf1e548';
 var request_url = 'https://api.imgur.com/3/album/' + album_id;
 
+var imgUrls = [];
 
-function preload(){
-	img = loadImage('https://i.imgur.com/VNFrEEu.jpg');
-	requestAlbum();
-	
 
-	// let url = 'https://api.imgur.com/3/';
-
-				// 'https://api.imgur.com/oauth2/authorize?client_id=9c48ba5baf1e548&response_type=token';
-				// 'https://api.imgur.com/oauth2/authorize?'+
-				// 'client_id='+YOUR_CLIENT_ID+
-				// '&response_type=token'+
-				// '&state='+'';
-	
-
-	// httpGet(request_url, 'jsonp', false,function(response) {
-	// 	console.log(response);
-	//     // when the HTTP request completes, populate the variable that holds the
-	//     // earthquake data used in the visualization.
-	//     data = response;    
- //  	});
+function preload() {
+    requestAlbum();
 }
 
-function requestAlbum(){
-	var req = new XMLHttpRequest();
-	req.onreadystatechange = function() { 
-     if (req.readyState == '4' && req.status == '200') {
-       processRequest(req.responseText);
-     } else {
-     	// error...
-     }
-  }
-  req.open('GET', request_url, true); // true for asynchronous     
-  req.setRequestHeader('Authorization', 'Client-ID ' + api_key);
-  req.send(null);
+function requestAlbum() {
+    var req = new XMLHttpRequest();
+    req.onreadystatechange = function() {
+        if (req.readyState == '4' && req.status == '200') {
+            processRequest(req.responseText);
+        } else {
+            // error...
+        }
+    }
+    req.open('GET', request_url, true); // true for asynchronous     
+    req.setRequestHeader('Authorization', 'Client-ID ' + api_key);
+    req.send(null);
 }
+
 
 function processRequest(response_text) {
-  if (response_text == 'Not found') {
-    console.log('Imgur album not found.');
-  } else {
-    
-    var json = JSON.parse(response_text);
-    console.log(json);
-    
-  }
+    if (response_text == 'Not found') {
+        console.log('Imgur album not found.');
+    } else {
+        let json = JSON.parse(response_text);
+        let imgs = json.data.images;
+        imgs.forEach((img) => {
+            imgUrls.push(img.link);
+        });
+
+        console.log(json);
+        console.log(imgs);
+        asyncLoad();
+    }
 }
 
+
+function asyncLoad() {
+    var item = imgUrls[Math.floor(Math.random() * imgUrls.length)];
+    img = loadImage(item);
+}
 
 function setup() {
-	createCanvas(800, 600);
-	background(0);
-	fullscreen();	
+    createCanvas(800, 600);
+    background(0);
+    fullscreen();
+
+
 }
 
+let s;
+
 function draw() {
-	image(img, 0,0);
+
+
+    if (img) {
+    	// image(img, 0, 0);
+    	if( !s)  s = new Slice(0,img);
+    	s.render();
+    }
+}
+
+class Slice {
+
+	position = 0;
+	img = null;
+
+    constructor(position, img) {
+        this.position = position;
+        this.img = img;
+    }
+
+    render(){
+    	// console.log("rendering maderfacker !");
+    	image(img, 0,0);
+    }
+
 }
 
 
@@ -75,4 +97,4 @@ function draw() {
 
 
 // 'https://api.imgur.com/oauth2/authorize?client_id=9c48ba5baf1e548&response_type=token'+
-				// '&state='+''
+// '&state='+''
