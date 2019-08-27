@@ -1,4 +1,4 @@
-let img = '';
+
 const YOUR_CLIENT_ID = '9c48ba5baf1e548';
 let data;
 
@@ -9,9 +9,12 @@ var request_url = 'https://api.imgur.com/3/album/' + album_id;
 
 var imgUrls = [];
 
+let mask, dummy;
 
 function preload() {
     requestAlbum();
+    mask = loadImage('https://i.imgur.com/SoZ4pjJ.png');
+    dummy = loadImage('https://i.imgur.com/Pq0XJem.png');
 }
 
 function requestAlbum() {
@@ -48,33 +51,51 @@ function processRequest(response_text) {
 
 function asyncLoad() {
     var item = imgUrls[Math.floor(Math.random() * imgUrls.length)];
-    img = loadImage(item);
-}
-
-function setup() {
-    createCanvas(800, 600);
-    background(0);
-    fullscreen();
-
+    
 
 }
 
 let s;
+let slices = [];
+
+function setup() {
+    createCanvas(1000, 1000);
+    background(0);
+    fullscreen();
+
+    for(sl = 0; sl < 12; sl++){
+    	let temp = new Slice(sl,dummy);
+    	slices.push(temp);
+    }
+}
+
 
 function draw() {
+	
+	push();
+	translate(width/2, height/2);
+	slices.forEach((slice) =>{
+		slice.render();
+	})
+	pop();
 
+	fill(255);
+	ellipse(width/2, height/2, 10,10);
 
-    if (img) {
-    	// image(img, 0, 0);
-    	if( !s)  s = new Slice(0,img);
-    	s.render();
-    }
+	noLoop();
 }
 
 class Slice {
 
+	radius = 300 - 50;
+	offset = -0;
 	position = 0;
 	img = null;
+	loc = {"x": 0, "y":0};
+    
+    switchImage(newImage){
+    	this.image = newImage;
+    }
 
     constructor(position, img) {
         this.position = position;
@@ -82,8 +103,18 @@ class Slice {
     }
 
     render(){
-    	// console.log("rendering maderfacker !");
-    	image(img, 0,0);
+    	this.loc.x = this.radius * sin(radians(this.position * 360/12));
+    	this.loc.y = this.radius * cos(radians(this.position * 360/12));    	
+    	console.log(this.loc);
+    	if(mask) {
+    		push();
+    		imageMode(CENTER);    		
+			translate(this.loc.x, this.loc.y);
+			rotate(-radians(180 + this.position * 360/12));    	
+			this.img.mask(mask);  			
+    		image(this.img, 0,0);
+    		pop();
+    	}
     }
 
 }
