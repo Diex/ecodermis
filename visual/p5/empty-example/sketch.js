@@ -1,4 +1,3 @@
-
 const YOUR_CLIENT_ID = '9c48ba5baf1e548';
 let data;
 
@@ -10,6 +9,7 @@ var request_url = 'https://api.imgur.com/3/album/' + album_id;
 var imgUrls = [];
 
 let mask, dummy;
+var changeImageTimeout = 1E3;
 
 function preload() {
     requestAlbum();
@@ -44,79 +44,88 @@ function processRequest(response_text) {
 
         console.log(json);
         console.log(imgs);
-        asyncLoad();
+        // asyncLoad();
     }
-}
-
-
-function asyncLoad() {
-    var item = imgUrls[Math.floor(Math.random() * imgUrls.length)];
-    
-
 }
 
 let s;
 let slices = [];
 
 function setup() {
-    createCanvas(1000, 1000);
+    let cnv = createCanvas(windowWidth, windowHeight); //createCanvas(1000, 1000);
+    cnv.style('display', 'block');
     background(0);
     fullscreen();
 
-    for(sl = 0; sl < 12; sl++){
-    	let temp = new Slice(sl,dummy);
-    	slices.push(temp);
+    for (sl = 0; sl < 12; sl++) {
+        let temp = new Slice(sl, dummy);
+        slices.push(temp);
     }
+
+    setInterval(() => {
+        if (imgUrls.length > 0) {
+            let item = imgUrls[Math.floor(Math.random() * imgUrls.length)];
+            let w = Math.floor(Math.random() * slices.length)
+            slices[w].switchImage(item);
+        }
+    }, changeImageTimeout);
 }
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
 
 function draw() {
-	
-	push();
-	translate(width/2, height/2);
-	slices.forEach((slice) =>{
-		slice.render();
-	})
-	pop();
+    background(0);
 
-	fill(255);
-	ellipse(width/2, height/2, 10,10);
+    push();
+    translate(width / 2, height / 2);
+    slices.forEach((slice) => {
+        slice.render();
+    })
+    pop();
 
-	noLoop();
+    fill(255);
+    ellipse(width / 2, height / 2, 10, 10);
+
+    // noLoop();
 }
 
 class Slice {
 
-	radius = 300 - 50;
-	offset = -0;
-	position = 0;
-	img = null;
-	loc = {"x": 0, "y":0};
-    
-    switchImage(newImage){
-    	this.image = newImage;
-    }
+    radius = 300 - 50;
+    offset = -0;
+    position = 0;
+    img = null;
+    loc = { "x": 0, "y": 0 };
+
+    switchImage(newImage) {
+        loadImage(newImage, (result) => {
+            this.img = result;
+        });
+    };
 
     constructor(position, img) {
         this.position = position;
         this.img = img;
-    }
+    };
 
-    render(){
-    	this.loc.x = this.radius * sin(radians(this.position * 360/12));
-    	this.loc.y = this.radius * cos(radians(this.position * 360/12));    	
-    	console.log(this.loc);
-    	if(mask) {
-    		push();
-    		imageMode(CENTER);    		
-			translate(this.loc.x, this.loc.y);
-			rotate(-radians(180 + this.position * 360/12));    	
-			this.img.mask(mask);  			
-    		image(this.img, 0,0);
-    		pop();
-    	}
-    }
+    render() {
+        this.loc.x = this.radius * sin(radians(this.position * 360 / 12));
+        this.loc.y = this.radius * cos(radians(this.position * 360 / 12));
+        // console.log(this.loc);
+        if (mask) {
+            push();
+            imageMode(CENTER);
 
+            translate(this.loc.x, this.loc.y);
+            rotate(-radians(180 + this.position * 360 / 12));
+            this.img.mask(mask);
+            image(this.img, 0, 0, mask.width, mask.height);
+
+            pop();
+        }
+    };
 }
 
 
