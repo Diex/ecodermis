@@ -1,9 +1,12 @@
+
+// poner online
+
 const YOUR_CLIENT_ID = '9c48ba5baf1e548';
+var api_key = '9c48ba5baf1e548';
+
 let data;
 
-
-var album_id = 'jwprYxa';
-var api_key = '9c48ba5baf1e548';
+var album_id = 'X94aatm';
 var request_url = 'https://api.imgur.com/3/album/' + album_id;
 
 var imgUrls = [];
@@ -17,7 +20,10 @@ function preload() {
     dummy = loadImage('https://i.imgur.com/Pq0XJem.png');
 }
 
+
 function requestAlbum() {
+	// TODO requestLast12imgs...
+
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
         if (req.readyState == '4' && req.status == '200') {
@@ -26,6 +32,7 @@ function requestAlbum() {
             // error...
         }
     }
+
     req.open('GET', request_url, true); // true for asynchronous     
     req.setRequestHeader('Authorization', 'Client-ID ' + api_key);
     req.send(null);
@@ -33,16 +40,18 @@ function requestAlbum() {
 
 
 function processRequest(response_text) {
+
     if (response_text == 'Not found') {
         console.log('Imgur album not found.');
     } else {
         let json = JSON.parse(response_text);
         let imgs = json.data.images;
         imgs.forEach((img) => {
+        	// TODO dejar solo las nuevas...
             imgUrls.push(img.link);
         });
 
-        console.log(json);
+        // console.log(json);
         console.log(imgs);
         // asyncLoad();
     }
@@ -58,6 +67,7 @@ function setup() {
     fullscreen();
 
     for (sl = 0; sl < 12; sl++) {
+    	// no se si tengo las imagenes todavái... mando un dummy
         let temp = new Slice(sl, dummy);
         slices.push(temp);
     }
@@ -126,6 +136,8 @@ class Slice {
             pop();
         }
     };
+
+ 
 }
 
 
@@ -135,6 +147,29 @@ class Slice {
 // 9c48ba5baf1e548
 // 920a33ac25c91675eb9960745010607476795257
 
+//ecodermislive
+// {
+//     "data": {
+//         "id": "358js78",
+//         "deletehash": "gb9PkK7y9pf9772"
+//     },
+//     "success": true,
+//     "status": 200
+// }
+
+//ecodermislive2
+// {
+//     "data": {
+//         "id": "6aJ7df0",
+//         "deletehash": "33BQmmk6fQI643N"
+//     },
+//     "success": true,
+//     "status": 200
+// }
+
+// ecodermislive3
+// https://imgur.com/a/X94aatm
+// T8BdrMLNSrJhKjZ
 
 // 'https://api.imgur.com/oauth2/authorize?client_id=9c48ba5baf1e548&response_type=token'+
 // '&state='+''
