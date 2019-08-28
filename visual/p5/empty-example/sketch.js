@@ -59,12 +59,15 @@ function processRequest(response_text) {
 
 let s;
 let slices = [];
+let earth;
 
 function setup() {
     let cnv = createCanvas(windowWidth, windowHeight); //createCanvas(1000, 1000);
     cnv.style('display', 'block');
     background(0);
     fullscreen();
+
+    earth = new Earth();
 
     for (sl = 0; sl < 12; sl++) {
     	// no se si tengo las imagenes todavái... mando un dummy
@@ -95,10 +98,27 @@ function draw() {
     })
     pop();
 
+    earth.render();
+    
     fill(255);
     ellipse(width / 2, height / 2, 10, 10);
 
     // noLoop();
+}
+
+class Earth {
+	
+	img = '';
+
+	constructor(){
+		loadImage("https://i.imgur.com/aTv6zUz.jpg", (result) => {
+            this.img = result;
+        });
+	}
+
+	render(){
+		image(this.img, 0,0, width,height);
+	}
 }
 
 class Slice {
